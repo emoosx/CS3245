@@ -1,8 +1,19 @@
 #!/usr/bin/python
-import re
+from nltk.util import ngrams
+from nltk.tokenize import word_tokenize
 import nltk
+import re
 import sys
 import getopt
+
+def build_ngram(n, line):
+    """
+    strip out the name of the language, build ngram from a given string input line
+    """
+
+    lang, line = line[:line.find(' ')], line[line.find(' ') + 1:]
+    return (lang, ngrams(line, n, pad_left=True, pad_right=True))
+
 
 def build_LM(in_file):
     """
@@ -12,7 +23,11 @@ def build_LM(in_file):
     print 'building language models...'
     # This is an empty method
     # Pls implement your code in below
-    
+    with open(in_file) as f:
+        lines = f.readlines()
+        four_grams = [build_ngram(4, l) for l in lines]
+        classifier = nltk.NaiveBayesClassifier.train(four_grams)
+
 def test_LM(in_file, out_file, LM):
     """
     test the language models on new URLs
