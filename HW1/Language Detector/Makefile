@@ -17,5 +17,3 @@ test:	build_test_LM.py
 
 cleanup:
 	rm *.test.*.txt input.short.txt
-
-
