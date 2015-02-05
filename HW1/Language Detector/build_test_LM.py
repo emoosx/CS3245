@@ -29,7 +29,7 @@ def build_LM(in_file):
     """
     print 'building language models...'
 
-    # do this cos question explicity states the texts are in these
+    # do this cos question explicity states the given urls are in these
     # three languages only
     languages = ['malaysian', 'indonesian', 'tamil']
     for l in languages:
