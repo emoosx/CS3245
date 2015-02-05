@@ -1,14 +1,17 @@
 #!/usr/bin/python
 from nltk.util import ngrams
 from nltk.tokenize import word_tokenize
+from pprint import pprint
+from itertools import groupby
 import nltk
 import re
 import sys
 import getopt
 
+
 def build_ngram(n, line):
-    """
-    strip out the name of the language, build ngram from a given string input line
+    """strip out the name of the language, build ngram from a given
+    string input line. Includes left and right paddings
     """
 
     lang, line = line[:line.find(' ')], line[line.find(' ') + 1:]
@@ -21,12 +24,13 @@ def build_LM(in_file):
     each line in in_file contains a label and an URL separated by a tab(\t)
     """
     print 'building language models...'
-    # This is an empty method
-    # Pls implement your code in below
+
+    languages = {}
     with open(in_file) as f:
         lines = f.readlines()
-        four_grams = [build_ngram(4, l) for l in lines]
-        classifier = nltk.NaiveBayesClassifier.train(four_grams)
+        four_grams = groupby((build_ngram(4, l) for l in lines), lambda x: x[0])
+        languages = dict((key, list(group)[0][1]) for key, group in four_grams)
+        pprint(languages)
 
 def test_LM(in_file, out_file, LM):
     """
