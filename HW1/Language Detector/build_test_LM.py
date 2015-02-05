@@ -71,7 +71,7 @@ def calculate_probability(lm, ngrams):
         else:
             prob = lm_dict.get(ng)/float(len(lm_dict))
             total_prob += log(prob)
-    return total_prob
+    return (lm, total_prob)
 
 def test_LM(in_file, out_file, LM):
     """
@@ -88,10 +88,9 @@ def test_LM(in_file, out_file, LM):
         lines = f.readlines()
         for line in lines:
             ngrams = list(build_ngram(4, line, False))
-            for lm in model:
-                print "Answer : %s %f" % (lm, calculate_probability(lm, ngrams))
-                # print "Answer: ", lm, calculate_probability(model[lm], ngrams)
-            print ""
+            prediction = max([calculate_probability(lm, ngrams) for lm in model], key=lambda x: x[1])
+            output.write('%s %s' % (prediction[0], line))
+
     output.close()
 
 
