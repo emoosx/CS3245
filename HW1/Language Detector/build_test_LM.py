@@ -1,12 +1,8 @@
 #!/usr/bin/python
 from nltk.util import ngrams
-from nltk.tokenize import word_tokenize
-from pprint import pprint
 from collections import defaultdict
 from itertools import groupby
 from math import log
-import nltk
-import re
 import sys
 import getopt
 
@@ -90,7 +86,6 @@ def test_LM(in_file, out_file, LM):
             ngrams = list(build_ngram(4, line, False))
             prediction = max([calculate_probability(lm, ngrams) for lm in model], key=lambda x: x[1])
             output.write('%s %s' % (prediction[0], line))
-
     output.close()
 
 
