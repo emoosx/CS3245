@@ -9,6 +9,7 @@ import getopt
 model = {}
 all_ngrams = set()
 
+
 def build_ngram(n, line, build_lm=True):
     """strip out the name of the language, build ngram from a given
     string input line. Includes left and right paddings
@@ -28,17 +29,15 @@ def build_LM(in_file):
     """
     print 'building language models...'
 
+    # do this cos question explicity states the texts are in these
+    # three languages only
     languages = ['malaysian', 'indonesian', 'tamil']
     for l in languages:
         model[l] = defaultdict(lambda: 1)   # takes cares of one-smoothing
 
     with open(in_file) as f:
-        lines = f.readlines()
-        four_grams = groupby((build_ngram(4, l) for l in lines), lambda x: x[0])
-
-        # for key, group in four_grams:
-            # for ngs in group:
-                # print key, list(ngs[1])
+        four_grams = groupby((build_ngram(4, l) for l in f.readlines()),
+                             lambda x: x[0])
 
         for key, group in four_grams:
             for ngs in group:
@@ -60,37 +59,45 @@ def calculate_probability(lm, ngrams):
     total_prob = 0
     lm_dict = model[lm]
 
-    for ng in list(ngrams):
-        if not ng in lm_dict:
+    for ng in ngrams:
+        if ng not in lm_dict:
             rouge_ngrams += 1
             continue
         else:
             prob = lm_dict.get(ng)/float(len(lm_dict))
             total_prob += log(prob)
+
+    # if there are a lot of rouge ngrams,
+    # chances are that it's in  a language we don't know
+    if(float(rouge_ngrams) / len(ngrams)) > 0.5:
+        total_prob = None
+
     return (lm, total_prob)
+
 
 def test_LM(in_file, out_file, LM):
     """
     test the language models on new URLs
     each line of in_file contains an URL
-    you should print the most probable label for each URL into out_file
+    you should print the most probable label
+    for each URL into out_file
     """
     print "testing language models..."
-    # pprint(model)
-    # This is an empty method
-    # Pls implement your code in below
     output = open(out_file, "wb")
     with open(in_file) as f:
         lines = f.readlines()
         for line in lines:
             ngrams = list(build_ngram(4, line, False))
-            prediction = max([calculate_probability(lm, ngrams) for lm in model], key=lambda x: x[1])
-            output.write('%s %s' % (prediction[0], line))
+            prediction = max((calculate_probability(lm, ngrams)
+                              for lm in model), key=lambda x: x[1])
+            output.write('%s %s' % (prediction[0] if prediction[1] is not None
+                                    else 'other', line))
     output.close()
 
 
 def usage():
-    print "usage: " + sys.argv[0] + " -b input-file-for-building-LM -t input-file-for-testing-LM -o output-file"
+    print "usage: " + sys.argv[0] + " -b input-file-for-building-LM -t \
+    input-file-for-testing-LM -o output-file"
 
 input_file_b = input_file_t = output_file = None
 try:
@@ -107,7 +114,7 @@ for o, a in opts:
         output_file = a
     else:
         assert False, "unhandled option"
-if input_file_b == None or input_file_t == None or output_file == None:
+if input_file_b is None or input_file_t is None or output_file is None:
     usage()
     sys.exit(2)
 
