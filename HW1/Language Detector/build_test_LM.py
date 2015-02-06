@@ -1,7 +1,6 @@
 #!/usr/bin/python
-from nltk.util import ngrams
 from collections import defaultdict
-from itertools import groupby
+from itertools import groupby, chain
 from math import log
 import sys
 import getopt
@@ -10,16 +9,34 @@ model = {}
 all_ngrams = set()
 
 
-def build_ngram(n, line, build_lm=True):
-    """strip out the name of the language, build ngram from a given
-    string input line. Includes left and right paddings
+def get_ngrams(line, n, pad_left=True, pad_right=True, word_based=False):
+    """ Lazily build ngram from a given
+    string input line. Includes left and right paddings by default
+    padding_character = None
     """
 
-    if build_lm:
+    if(word_based):
+        line = line.split(' ')
+
+    line = iter(line)
+    if pad_left:
+        line = chain((None,) * (n-1), line)
+    if pad_right:
+        line = chain(line, (None,) * (n-1))
+
+    result = [next(line) for i in range(n-1)]
+    for gram in line:
+        result.append(gram)
+        yield tuple(result)
+        del result[0]
+
+
+def build_ngrams(line, n, need_splitting=True):
+    if need_splitting:
         lang, line = line[:line.find(' ')], line[line.find(' ') + 1:]
-        return (lang, ngrams(line, n, pad_left=True, pad_right=True))
+        return (lang, get_ngrams(line, 4))
     else:
-        return ngrams(line, n, pad_left=True, pad_right=True)
+        return get_ngrams(line, 4)
 
 
 def build_LM(in_file):
@@ -36,9 +53,8 @@ def build_LM(in_file):
         model[l] = defaultdict(lambda: 1)   # takes cares of one-smoothing
 
     with open(in_file) as f:
-        four_grams = groupby((build_ngram(4, l) for l in f.readlines()),
+        four_grams = groupby((build_ngrams(l, 4) for l in f.readlines()),
                              lambda x: x[0])
-
         for key, group in four_grams:
             for ngs in group:
                 for ng in ngs[1]:
@@ -87,7 +103,7 @@ def test_LM(in_file, out_file, LM):
     with open(in_file) as f:
         lines = f.readlines()
         for line in lines:
-            ngrams = list(build_ngram(4, line, False))
+            ngrams = list(build_ngrams(line, 4, False))
             prediction = max((calculate_probability(lm, ngrams)
                               for lm in model), key=lambda x: x[1])
             output.write('%s %s' % (prediction[0] if prediction[1] is not None
