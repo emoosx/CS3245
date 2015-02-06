@@ -1,2 +1,17 @@
-Replace this file with the answers to the essay questions here.
+1. In the homework assignment, we are using character-based ngrams, i.e., the gram units are characters. Do you expect token-based ngram models to perform better?
 
+Assuming token are individual words, I expect that it would lead to a better language identication since  multiple occurrences of certain keywords only happen in a certain language. (For instance, if the text contains occurrences of the word `the`, there is a high chance that the text is in English). However, we would require a much larger training dataset since when I run the experiment with my code, it produces less accurate results.
+
+2.  If we are provided with more data for each category, I suspect that we could predict languages with more confidence. Moreover, we could also utilize token based ngrams.  Furthermore, I think that given much more training data, we could have a better chance of predicting `others` language.
+If we are only provided with more data for Indonesia, there would be an increase in accuracy in detecting text as Indonesian or non indonesian which could overall increase the prediction to a certain degree but not as well as even distribution.  
+
+3. If punctuations and/or numbers are stripped out and conversion of uppercase to lowercase is done, it could be more helpful in improving the accuracy. For instance, "tech spec", "tech-spec", "Tech spec" should be the same in terms of meaning. However, there may not be true for every punctuation character and for every language. Non english languages may have words that change meaning, depending on the presence of a punctuation character.
+
+4.  As we increases the ngram size (up to a reasonable size), the accuracy gets increased in general since there would be cases wehre certain combinations of characters only happen in certian languages. For instance, a trigram ('k', 'c', 'a') is certainly more effective in identifying the language than a unigram ('k'). When I run my code, 
+ngram_size 1 -> accuracy  10 / 20 (50%)
+ngram_size 2 -> accuracy  12 / 20 (60%)
+ngram_size 3 -> accuracy  17 / 20 (85%)
+ngram_size 4 -> accuracy  20 / 20 (100%)
+ngram_size 5 -> accuracy  19 / 20 (95%)
+
+As you can see here, the bigger the ngram size, the more accurate the prediciton becomes. However, as the ngram sizes increase, more computation has to be done when building the language model and the size of overall vocabulary will increase as n increases.

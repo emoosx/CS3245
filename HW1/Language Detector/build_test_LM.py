@@ -5,11 +5,14 @@ from math import log
 import sys
 import getopt
 
+NGRAM_SIZE = 6
+WORD_BASED = False
+
 model = {}
 all_ngrams = set()
 
 
-def get_ngrams(line, n, pad_left=True, pad_right=True, word_based=False):
+def get_ngrams(line, n, word_based=False, pad_left=True, pad_right=True):
     """ Lazily build ngram from a given
     string input line. Includes left and right paddings by default
     padding_character = None
@@ -37,9 +40,9 @@ def build_ngrams(line, n, need_splitting=True):
 
     if need_splitting:
         lang, line = line[:line.find(' ')], line[line.find(' ') + 1:]
-        return (lang, get_ngrams(line, 4))
+        return (lang, get_ngrams(line, NGRAM_SIZE, WORD_BASED))
     else:
-        return get_ngrams(line, 4)
+        return get_ngrams(line, NGRAM_SIZE, WORD_BASED)
 
 
 def build_LM(in_file):
@@ -86,6 +89,9 @@ def calculate_probability(lm, ngrams):
             prob = lm_dict.get(ng)/float(len(lm_dict))
             total_prob += log(prob)
 
+    # print 'Language: %s, Prob: %s, Rouge: %s, Len: %d' \
+        # % (lm, str(prob), str(rouge_ngrams), len(ngrams))
+
     # if there are a lot of rouge ngrams,
     # chances are that it's in  a language we don't know
     if(float(rouge_ngrams) / len(ngrams)) > 0.5:
@@ -111,6 +117,7 @@ def test_LM(in_file, out_file, LM):
                               for lm in model), key=lambda x: x[1])
             output.write('%s %s' % (prediction[0] if prediction[1] is not None
                                     else 'other', line))
+            # print ''
     output.close()
 
 
