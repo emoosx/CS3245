@@ -20,4 +20,9 @@ eval: eval.py
 	python eval.py $(INPUT_PREDICT) $(INPUT_CORRECT)
 
 cleanup:
+	rm -rf A0105860L
 	rm *.test.*.txt input.short.txt
+
+zip:
+	zip -r -X A0105860L.zip $(LM_FILE) ESSAY.txt eval.py Makefile README.txt
+
