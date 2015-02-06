@@ -28,10 +28,13 @@ def get_ngrams(line, n, pad_left=True, pad_right=True, word_based=False):
     for gram in line:
         result.append(gram)
         yield tuple(result)
-        del result[0]
+        result.pop(0)
 
 
 def build_ngrams(line, n, need_splitting=True):
+    """ A wrapper function to decide whether the line contains language
+    at the front and split it if so and then call get_ngrams"""
+
     if need_splitting:
         lang, line = line[:line.find(' ')], line[line.find(' ') + 1:]
         return (lang, get_ngrams(line, 4))
