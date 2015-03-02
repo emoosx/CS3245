@@ -1,0 +1,12 @@
+DOC=~/nltk_data/corpora/reuters/training
+DICT=dictioanry.txt
+POSTINGFILE=postings.txt
+
+QUERIES=queries.txt
+OUTPUT=output.txt
+
+index: index.py
+	python index.py -i $(DOC) -d $(DICT) -p $(POSTINGFILE)
+
+search: search.py
+	python search.py -d $(DICT) -p $(POSTINGFILE) -q $(QUERIES) -o $(OUTPUT)
