@@ -1,5 +1,6 @@
 #!/usr/bin/python
 from nltk.tokenize import word_tokenize, sent_tokenize
+from nltk.stem.porter import PorterStemmer
 import os
 import getopt
 import sys
@@ -26,12 +27,15 @@ def process_file(f):
     """Process individual file
     
     """
+    
     with open(f, 'r') as f:
         data = f.read().decode('utf8')
         words = [word_tokenize(w) for w in sent_tokenize(data)]
-        flattened_list = list(itertools.chain.from_iterable(words))
-    return flattened_list
-        
+        flattened_list = itertools.chain.from_iterable(words)
+        stemmer = PorterStemmer()
+        stemmed_list = [stemmer.stem(w.lower()) for w in flattened_list]
+
+    return stemmed_list
         
 
 def build_index(docs_directory, dict_file, postings_file):
