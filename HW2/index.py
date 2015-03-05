@@ -1,7 +1,12 @@
 #!/usr/bin/python
-
+from nltk.tokenize import word_tokenize, sent_tokenize
+import os
 import getopt
 import sys
+import itertools
+
+# At the end of the indexing phase, you are to write the dictionary into `dictionary-file`
+# and the postings into `posting-file`
 
 # Apply tokenization and stemming on the document text.
 # You should use NLTK tokenizers (nltk.sent_tokenize() and nltk.word_tokenize())
@@ -10,8 +15,36 @@ import sys
 # all words to lower case.
 
 # Implement skip pointers in the postings lists.
-def build_index(docs, dictionary, postings):
-    pass
+# math.sqrt(len(posting)) skip pointers are evenly placed on the a postings list.
+# Although implementing skip pointers takes up extra disk space, it provides a shortcut
+# to efficiently merge two postings lists, thus boosting the searching speed.
+
+
+# Read each file in the training dir
+
+def process_file(f):
+    """Process individual file
+    
+    """
+    with open(f, 'r') as f:
+        data = f.read().decode('utf8')
+        words = [word_tokenize(w) for w in sent_tokenize(data)]
+        flattened_list = list(itertools.chain.from_iterable(words))
+    return flattened_list
+        
+        
+
+def build_index(docs_directory, dict_file, postings_file):
+    training_files = sorted([f for f in os.listdir(docs_directory)], key=lambda x: os.path.basename(x))
+    training_files = training_files[:5]  # TODO: omit this
+    for f in training_files:
+        contents = process_file(os.path.join(docs_directory, f))
+        print contents
+    
+
+    
+    
+        
 
 def usage():
     print "usage: " + sys.argv[0] + " -i directory-of-documents " \
