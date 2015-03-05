@@ -1,6 +1,7 @@
 #!/usr/bin/python
 from nltk.tokenize import word_tokenize, sent_tokenize
 from nltk.stem.porter import PorterStemmer
+from skip_list import SkipList
 import os
 import getopt
 import sys
@@ -23,27 +24,74 @@ import itertools
 
 # Read each file in the training dir
 
+TEMP_DIR = 'temp'
+pointer = 0
+
+
 def process_file(f):
     """Process individual file
-    
+        - Decode the string as a unicode string (in case there are unicode characters)
+        - Tokenize each sentence
+        - For each sentence, tokenize words
+        - Flatten the list
+        - Apply casefolding and stemming for each word
     """
-    
-    with open(f, 'r') as f:
-        data = f.read().decode('utf8')
-        words = [word_tokenize(w) for w in sent_tokenize(data)]
+    stemmer = PorterStemmer()
+    invalid_chrs = [',', '-', '.', '..', '&', '(', ')', '"', "'"]
+    with open(f, 'rb') as f:
+        data = f.read()
+        words = (word_tokenize(''.join(w.split('/')))for w in sent_tokenize(data))
         flattened_list = itertools.chain.from_iterable(words)
-        stemmer = PorterStemmer()
-        stemmed_list = [stemmer.stem(w.lower()) for w in flattened_list]
-
+        stemmed_list = [stemmer.stem(w.lower()) for w in flattened_list if w not in invalid_chrs]
     return stemmed_list
+
+
+def create_temp_file(terms, doc_id):
+    for term in terms:
+        filepath = os.path.join(os.getcwd(), TEMP_DIR, term)
+        if not os.path.isfile(filepath):
+            with open(filepath, 'wb') as f:
+                f.write(doc_id)
+        else:
+            with open(filepath, 'ab') as f:
+                f.write("," + doc_id)
+    
+        
+
+def build_dictionary(terms, dictionary, doc_id, postings):
+    """Build a dictionary from the terms"""
+    global pointer
+    for term in terms:
+        if term not in dictionary:
+            skip_list = SkipList()
+            skip_list.append(doc_id)
+            dictionary[term] = [len(skip_list), pointer]
+            postings.insert(pointer, skip_list)
+        else:
+            pointer = dictionary[term][1]
+            postings[dictionary[term][1]].append(doc_id)
+            dictionary[term][0] += 1
+        pointer += 1
+
+            
         
 
 def build_index(docs_directory, dict_file, postings_file):
+    dictionary = {}
+    postings = []
+
     training_files = sorted([f for f in os.listdir(docs_directory)], key=lambda x: os.path.basename(x))
     training_files = training_files[:5]  # TODO: omit this
+
+    if not os.path.exists(TEMP_DIR):
+        os.makedirs(TEMP_DIR)
+
     for f in training_files:
-        contents = process_file(os.path.join(docs_directory, f))
-        print contents
+        terms = process_file(os.path.join(docs_directory, f))
+        # create_temp_file(terms, f)
+        build_dictionary(terms, dictionary, f, postings)
+
+    print dictionary
     
 
     

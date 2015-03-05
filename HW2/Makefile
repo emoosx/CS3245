@@ -4,9 +4,17 @@ POSTINGFILE=postings.txt
 
 QUERIES=queries.txt
 OUTPUT=output.txt
+TEMP=temp/
+
+all: clean index
 
 index: index.py
 	python index.py -i $(DOC) -d $(DICT) -p $(POSTINGFILE)
 
 search: search.py
 	python search.py -d $(DICT) -p $(POSTINGFILE) -q $(QUERIES) -o $(OUTPUT)
+
+clean:
+	if [ -d "$(TEMP)" ]; then \
+	    rm -rf $(TEMP); \
+	fi
