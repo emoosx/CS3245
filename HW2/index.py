@@ -1,4 +1,5 @@
 #!/usr/bin/python
+
 import getopt
 import sys
 
@@ -9,6 +10,8 @@ import sys
 # all words to lower case.
 
 # Implement skip pointers in the postings lists.
+def build_index(docs, dictionary, postings):
+    pass
 
 def usage():
     print "usage: " + sys.argv[0] + " -i directory-of-documents " \
@@ -22,7 +25,6 @@ def main():
     except getopt.GetoptError, err:
         usage()
         sys.exit(2)
-    print opts
     for o, a in opts:
         if o == '-i':
             doc_directory = a
@@ -37,7 +39,7 @@ def main():
         usage()
         sys.exit(2)
 
-    print doc_directory, dictionary_file, postings_file
+    build_index(doc_directory, dictionary_file, postings_file)
 
 
 if __name__ == '__main__':
