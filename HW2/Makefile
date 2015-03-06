@@ -1,5 +1,5 @@
 DOC=~/nltk_data/corpora/reuters/training
-DICT=dictioanry.txt
+DICT=dictionary.txt
 POSTINGFILE=postings.txt
 
 QUERIES=queries.txt

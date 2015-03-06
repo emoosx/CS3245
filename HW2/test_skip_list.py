@@ -32,10 +32,7 @@ class TestSkipList:
 
 
     # def test_create_skip_pointers(self):
-    #     for i in range(30):
+    #     for i in range(20, 50):
     #         self.skip_list.append(i)
     #     self.skip_list.create_skip_pointers()
     #     eq_(1, 2)
-            
-        
-        

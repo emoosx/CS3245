@@ -16,6 +16,7 @@ class SkipList:
         self.append(other)
 
     def append(self, value):
+        """Add a new node to the list. Increment the length."""
         if self.root is None:
             self.root = SkipListNode(value)
             self.last = self.root
@@ -36,7 +37,6 @@ class SkipList:
             start = target
             target = start + skip_length
 
-
     def create_skip_pointers(self):
         """ Create skip pointers with number paris generated from generate_skips"""
         current = 1
@@ -47,7 +47,6 @@ class SkipList:
                 current += 1
             target_node = node
 
-
             while b > current:
                 target_node = target_node.next
                 current += 1
@@ -57,6 +56,6 @@ class SkipList:
 
         current = self.root
         while(current != self.last):
-            current.print_node()
+            # current.print_node()
             current = current.next
             

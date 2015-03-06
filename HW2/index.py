@@ -75,13 +75,14 @@ def build_dictionary(terms, dictionary, doc_id, postings):
 
 
 def create_files(dictionary, dict_file, postings, postings_file):
-    for key, value in dictionary.iteritems():
-        postings[value[1]].create_skip_pointers()
+    with open(postings_file, "w+b") as pfile:
+        for key, value in dictionary.iteritems():
+            postings[value[1]].create_skip_pointers()
+            dictionary[key] = (value, len(postings[value[1]]), pfile.tell())
+            pickle.dump(postings[value[1]], pfile, pickle.HIGHEST_PROTOCOL)
 
-    
- #   dict_file = open(dict_file, 'wb')
- #   pickle.dump(dictionary, dict_file, pickle.HIGHEST_PROTOCOL)
- #   dict_file.close()
+    with open(dict_file, 'wb') as dfile:
+        pickle.dump(dictionary, dfile, pickle.HIGHEST_PROTOCOL)
 
             
 def build_index(docs_directory, dict_file, postings_file):
@@ -89,7 +90,7 @@ def build_index(docs_directory, dict_file, postings_file):
     postings = []
 
     training_files = sorted([f for f in os.listdir(docs_directory)], key=lambda x: os.path.basename(x))
-    training_files = training_files[:5]  # TODO: omit this
+    training_files = training_files[:100]  # TODO: omit this
 
     if not os.path.exists(TEMP_DIR):
         os.makedirs(TEMP_DIR)
@@ -101,10 +102,6 @@ def build_index(docs_directory, dict_file, postings_file):
 
     create_files(dictionary, dict_file, postings, postings_file)
     
-
-    
-    
-        
 
 def usage():
     print "usage: " + sys.argv[0] + " -i directory-of-documents " \
