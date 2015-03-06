@@ -1,20 +1,39 @@
+from nltk.stem.porter import PorterStemmer
 import cPickle as pickle
 import getopt
 import sys
 import parser
 
+
+def execute_query(query, dictionary, pfile):
+    """Exectue individual query"""
+    pass
+
 def search(dictionary_file, postings_file, query_file, output_file):
     """ Entry point to the program """
+
+    stemmer = PorterStemmer()
     with open(dictionary_file, "rb") as dfile:
         dictionary = pickle.loads(dfile.read())
 
     with open(query_file, "rb") as qfile:
         with open(postings_file, "rb") as pfile:
             for query in qfile:
-                print parser.infix_to_prefix(query)
+                print "query: ", query
+                prefix = parser.to_polish_notation(query)
+                print "prefix: ", prefix
+                processed = []
+                for token in prefix:
+                    if parser.is_operand(token):
+                        token = stemmer.stem(token).lower()
+                    processed.append(token)
 
+                print "processed: ", processed
+                query = parser.process_query(processed)
+                print "query: ", query
+                result = execute_query(query, dictionary, pfile)
 
-            
+                print result
 
 
 def usage():

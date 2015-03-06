@@ -1,3 +1,6 @@
+from query import Query
+
+
 OPERATORS = ['NOT', 'AND', 'OR']
 PRECEDENCE = {
     ')' : 4,
@@ -9,8 +12,9 @@ PRECEDENCE = {
 
 
 is_operator = lambda t: t in OPERATORS
-is_brace = lambda t: t in '()'
+is_brace = lambda t: t in ['(', ')']
 is_operand = lambda t: not(is_operator(t) or is_brace(t))
+
 
 def compare(op1, op2):
     if PRECEDENCE[op1] == PRECEDENCE[op2]:
@@ -19,10 +23,10 @@ def compare(op1, op2):
         return 1
     return -1
 
-def infix_to_prefix(query):
-    query = query.replace('(', ' ( ').replace(')', ' ) ')
-    tokens = [t for t in query.split(' ')]
-    tokens.reverse()
+
+def to_polish_notation(query):
+    query = query.rstrip('\n').replace('(', ' ( ').replace(')', ' ) ')
+    tokens = filter(lambda x: x is not '', [t for t in query.split(' ')][::-1])
 
     output = []
     stack = []
@@ -39,13 +43,30 @@ def infix_to_prefix(query):
         elif token == '(':
             while (len(stack) and stack[-1] != ')'):
                 output.append(stack.pop())
-            stack.append(token)
+            stack.pop()
         elif token == ')':
             stack.append(token)
-
 
     while(len(stack)):
         output.append(stack.pop())
 
-    output.reverse()
-    return output
+    return output[::-1]
+
+
+def process_query(polish_list):
+    stack = []
+    if(len(polish_list)) == 1:
+        return Query(tuple(polish_list))
+
+    while(len(polish_list) != 1 or len(stack)):
+        token = polish_list.pop()
+        if is_operand(token):
+            stack.append(token)
+        else:
+            if token == 'NOT':
+                q = Query((token, stack.pop()))
+            else:
+                q = Query((token, stack.pop(), stack.pop()))
+            polish_list.append(q)
+    return polish_list[0]
+
