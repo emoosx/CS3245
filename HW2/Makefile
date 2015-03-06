@@ -2,7 +2,7 @@ DOC=~/nltk_data/corpora/reuters/training
 DICT=dictionary.txt
 POSTINGFILE=postings.txt
 
-QUERIES=queries.txt
+QUERIES=query.txt
 OUTPUT=output.txt
 TEMP=temp/
 

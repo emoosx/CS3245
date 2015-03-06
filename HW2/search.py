@@ -1,8 +1,21 @@
+import cPickle as pickle
 import getopt
 import sys
+import parser
 
 def search(dictionary_file, postings_file, query_file, output_file):
-    print dictionary_file, postings_file, query_file, output_file
+    """ Entry point to the program """
+    with open(dictionary_file, "rb") as dfile:
+        dictionary = pickle.loads(dfile.read())
+
+    with open(query_file, "rb") as qfile:
+        with open(postings_file, "rb") as pfile:
+            for query in qfile:
+                print parser.infix_to_prefix(query)
+
+
+            
+
 
 def usage():
     print "usage: " + sys.argv[0] + " -d dictionary-file -p postings_file " \

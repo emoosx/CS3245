@@ -89,7 +89,7 @@ def build_index(docs_directory, dict_file, postings_file):
     dictionary = {}
     postings = []
 
-    training_files = sorted([f for f in os.listdir(docs_directory)], key=lambda x: os.path.basename(x))
+    training_files = sorted([f for f in os.listdir(docs_directory)], key=int)
     training_files = training_files[:100]  # TODO: omit this
 
     if not os.path.exists(TEMP_DIR):
