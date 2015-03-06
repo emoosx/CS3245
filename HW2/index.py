@@ -2,6 +2,7 @@
 from nltk.tokenize import word_tokenize, sent_tokenize
 from nltk.stem.porter import PorterStemmer
 from skip_list import SkipList
+import cPickle as pickle
 import os
 import getopt
 import sys
@@ -55,11 +56,10 @@ def create_temp_file(terms, doc_id):
         else:
             with open(filepath, 'ab') as f:
                 f.write("," + doc_id)
-    
         
 
 def build_dictionary(terms, dictionary, doc_id, postings):
-    """Build a dictionary from the terms"""
+    """Build a dictionary and respective postings list from the terms"""
     global pointer
     for term in terms:
         if term not in dictionary:
@@ -73,9 +73,17 @@ def build_dictionary(terms, dictionary, doc_id, postings):
             dictionary[term][0] += 1
         pointer += 1
 
-            
-        
 
+def create_files(dictionary, dict_file, postings, postings_file):
+    for key, value in dictionary.iteritems():
+        postings[value[1]].create_skip_pointers()
+
+    
+ #   dict_file = open(dict_file, 'wb')
+ #   pickle.dump(dictionary, dict_file, pickle.HIGHEST_PROTOCOL)
+ #   dict_file.close()
+
+            
 def build_index(docs_directory, dict_file, postings_file):
     dictionary = {}
     postings = []
@@ -91,7 +99,7 @@ def build_index(docs_directory, dict_file, postings_file):
         # create_temp_file(terms, f)
         build_dictionary(terms, dictionary, f, postings)
 
-    print dictionary
+    create_files(dictionary, dict_file, postings, postings_file)
     
 
     
