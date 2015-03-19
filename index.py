@@ -1,6 +1,7 @@
 from nltk.stem.porter import PorterStemmer
 from collections import Counter
 from nltk import sent_tokenize, word_tokenize
+# from pprint import pprint
 import cPickle as pickle
 import getopt
 import sys
@@ -12,17 +13,11 @@ dictionary = {}
 postings = []
 
 UNIVERSAL = 0
-pointer = 1
+pointer = 0
 stemmer = PorterStemmer()
 
 
-def process_file(contents):
-    """ Remove newlines and join them with a single space """
-    contents = contents[0]
-    return " ".join(map(lambda x: x.strip(), contents))
-
-
-def get_each_term_frequency(content, docId):
+def get_each_file_term_frequency(content, docId):
     """ Generate tokens, do case-folding and stemming, create a dictionary
     and index each term.
     """
@@ -56,13 +51,13 @@ def main():
         filepath = os.path.join(dir_to_index, d)
         with open(filepath, 'r') as f:
             content = " ".join(map(lambda x: x.strip(), f.readlines()))
-            term_freq = get_each_term_frequency(content, d)
+            term_freq = get_each_file_term_frequency(content, d)
             index_content(term_freq, d)
     create_files(len(data))
 
 
 def create_files(file_count):
-    """ Write dictionary and postings to file. """
+    """ Write dictionary and postings to file."""
     with open(postings_file, 'w+b') as fpostings:
         for key, value in dictionary.iteritems():
             dictionary[key] = (value, fpostings.tell(), len(postings[value]))
