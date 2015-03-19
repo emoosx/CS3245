@@ -30,7 +30,7 @@ def get_each_file_term_frequency(content, docId):
 
 def index_content(term_freq, docId):
     """ Create postings lists by populating the global poinstgs list with
-    terms and adding respective term freqeuncies. """
+    terms and adding respective term frequencies. """
     global pointer
     for word, freq in term_freq.iteritems():
         if word not in dictionary:
@@ -65,6 +65,9 @@ def create_files(file_count):
 
     with open(dict_file, 'wb') as fdict:
         pickle.dump(dictionary, fdict, pickle.HIGHEST_PROTOCOL)
+
+    with open('FILE_COUNT', 'wb') as fcount:
+        fcount.write(str(file_count))
 
 
 def usage():

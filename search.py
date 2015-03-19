@@ -8,8 +8,9 @@ def main():
     with open(query_file, 'r') as fquery:
         with open(output_file, 'w') as foutput:
             for query in fquery.readlines():
-                query_tree = search.build_querytree(query)
-                foutput.write(str(search.process(query_tree)) + '\n')
+                result = search.search(query)
+                print result
+                # foutput.write(result + '\n')
 
 
 def usage():
