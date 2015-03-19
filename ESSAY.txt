@@ -1,0 +1,12 @@
+Q1.
+
+I don't think complete removal of all number tokens would be a good idea. This could affects the searches that primarly consists of numbers, dates,, currency information for example. Maybe, if we could standardize the numbers into a single format.
+
+Q2.
+For boolean queries, the effect might be less than phrasal queries since for boolean queries, we will no longer be able to process queries with stopwords or ast least the results would be  ambigious (eg. bill AND gates AND and, bill AND gates OR and) Its not clear how we should consider the last term in the query. All docs? Some docs? Ignore? On the plus side, performance might improve since we now use a lot less space in our postings file (indexing is faster). We don't save all that much space in our dictionary.
+
+However, I think for phrasal queries, removal of stop words reduce the ability to match exact phrases.
+
+Q3.
+
+Sentence tokenization seems to be okay. However, for word tokenization, it seems to be just splitting on whitespace. Even though this is fine for this assignment, Some words lose their meaning when broken up by whitespace (eg. 5.5 mil) One thing we could do here is to have a special rule for numbers and the words that come before then and/or after them.
