@@ -1,5 +1,5 @@
 from nltk.stem.porter import PorterStemmer
-from postings_list import PostingsList
+from collections import Counter
 from nltk import sent_tokenize, word_tokenize
 import cPickle as pickle
 import getopt
@@ -22,33 +22,28 @@ def process_file(contents):
     return " ".join(map(lambda x: x.strip(), contents))
 
 
-def index_content(content, docId):
+def get_each_term_frequency(content, docId):
     """ Generate tokens, do case-folding and stemming, create a dictionary
     and index each term.
     """
     words = map(word_tokenize, sent_tokenize(content))
     words = map(lambda x: [stemmer.stem(y.lower()) for y in x], words)
-    words = {}.fromkeys([x for y in words for x in y]).keys()
-    for word in words:
-        index_word(word, docId)
+    words = [x for word in words for x in word]
+    term_freq = dict(Counter(words))     # term frequencies for each document
+    return term_freq
 
 
-def index_word(word, docId):
-    """ Indexes the docId for a particular word, creates the skiplist for new words"""
+def index_content(term_freq, docId):
+    """ Create postings lists by populating the global poinstgs list with
+    terms and adding respective term freqeuncies. """
     global pointer
-    if word not in dictionary:
-        dictionary[word] = pointer
-        plist = PostingsList()
-        plist.append(docId)
-        postings.insert(pointer, plist)
-        pointer += 1
-    else:
-        postings[dictionary[word]].append(docId)
-
-
-def init_universal_set():
-    dictionary["UNIVERSAL"] = UNIVERSAL
-    postings.insert(UNIVERSAL, "")
+    for word, freq in term_freq.iteritems():
+        if word not in dictionary:
+            dictionary[word] = pointer
+            postings.insert(pointer, [(docId, freq)])
+            pointer += 1
+        else:
+            postings[dictionary[word]].append((docId, freq))
 
 
 def main():
@@ -56,24 +51,20 @@ def main():
     This is the point of entry. Does initialization, retrieve files' content,
     do indexing, generation diction and postings_files.
     """
-    init_universal_set()
-    data = os.listdir(dir_to_index)
-    data.sort(key=lambda x: int(x))
+    data = sorted(os.listdir(dir_to_index), key=int)
     for d in data:
         filepath = os.path.join(dir_to_index, d)
         with open(filepath, 'r') as f:
             content = " ".join(map(lambda x: x.strip(), f.readlines()))
-            index_content(content, d)
-            postings[UNIVERSAL] += str(d) + ' '  # also put in universal set
-    create_files()
+            term_freq = get_each_term_frequency(content, d)
+            index_content(term_freq, d)
+    create_files(len(data))
 
 
-def create_files():
-    """ Generate skips, write dicitoinary and postings to file. """
+def create_files(file_count):
+    """ Write dictionary and postings to file. """
     with open(postings_file, 'w+b') as fpostings:
         for key, value in dictionary.iteritems():
-            if key != "UNIVERSAL": # no need to gen skips for universal set
-                postings[value].generate_skips()
             dictionary[key] = (value, fpostings.tell(), len(postings[value]))
             pickle.dump(postings[value], fpostings, pickle.HIGHEST_PROTOCOL)
 
