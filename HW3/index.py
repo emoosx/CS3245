@@ -1,6 +1,7 @@
 from nltk.stem.porter import PorterStemmer
 from collections import Counter
 from nltk import sent_tokenize, word_tokenize
+from search_index import SearchIndex
 # from pprint import pprint
 import utils
 import cPickle as pickle
@@ -59,7 +60,7 @@ def main():
     # make another pass to calculate doc weights
     for word, pointer in dictionary.iteritems():
         for doc in postings[pointer]:
-            doc.append(utils.cal_log_tfs(doc[1]))
+            doc.append(SearchIndex.cal_log_tfs(doc[1]))
 
     # pprint(postings)
     create_files(len(data))

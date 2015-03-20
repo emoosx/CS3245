@@ -2,8 +2,8 @@ DOC=~/nltk_data/corpora/reuters/training
 DICT=dictionary.txt
 POSTINGFILE=postings.txt
 
-QUERIES=query.txt
-JIN_QUERIES=jin_query.txt
+QUERIES=queries/query.txt
+JIN_QUERIES=queries/jin_query.txt
 OUTPUT=output.txt
 TEMP=temp/
 
@@ -24,5 +24,8 @@ clean:
 
 test:
 	nosetests
+
+build:
+
 
 all: clean index search
