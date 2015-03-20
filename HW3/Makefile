@@ -26,6 +26,18 @@ test:
 	nosetests
 
 build:
+	rm -rf *.zip
+	if [ -d A0105860L/ ]; then \
+	    rm -rf A0105860L/ ; \
+	fi
+	mkdir A0105860L
+	git archive master | tar -x -C A0105860L
+	rm -rf A0105860L/__init__.py
+	rm -rf A0105860L/FILE_COUNT
+	rm -rf A0105860L/queries
+	rm -rf A0105860L/output.txt
+	zip -r ~/Desktop/A0105860L.zip A0105860L
+	rm -r A0105860L
 
 
 all: clean index search
