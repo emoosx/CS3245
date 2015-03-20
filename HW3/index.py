@@ -3,7 +3,6 @@ from collections import Counter
 from nltk import sent_tokenize, word_tokenize
 from search_index import SearchIndex
 # from pprint import pprint
-import utils
 import cPickle as pickle
 import getopt
 import sys
@@ -57,7 +56,7 @@ def main():
             term_freq = get_each_file_term_frequency(content, d)
             index_content(term_freq, d)
 
-    # make another pass to calculate doc weights
+    # make another pass to calculate weights
     for word, pointer in dictionary.iteritems():
         for doc in postings[pointer]:
             doc.append(SearchIndex.cal_log_tfs(doc[1]))

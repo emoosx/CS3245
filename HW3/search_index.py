@@ -57,7 +57,7 @@ class SearchIndex:
         - normalize doc vector and compute cosine score
         - put scores in a heap and get the top ten scores
         """
-        terms = map(lambda x: self.stemmer.stem(x), word_tokenize(query))
+        terms = map(lambda x: self.stemmer.stem(x.lower()), word_tokenize(query))
         terms = dict(Counter(terms))
         query_vector = self.normalize_vector(terms, self.tfs_idf)
         if not any(query_vector):
