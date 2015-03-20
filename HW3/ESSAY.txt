@@ -1,12 +1,16 @@
-Q1.
+### Q1.  - In this assignment, we didn't ask you to support phrasal queries, which is a feature that is typically supported in web search engines. Describe how you would support phrasal search in conjunction with the VSM model. A sketch of the algorithm is sufficient. (For those of you who like a challenge, please go ahead and implement this feature in your submission but clearly demarcate it in your code and allow this feature to be turned on or off using the command line switch "-x" (where "-x" means to turn on the extended processing of phrasal queries). We will give a small bonus to submissions that achieve this functionality correctly).
 
-I don't think complete removal of all number tokens would be a good idea. This could affects the searches that primarly consists of numbers, dates,, currency information for example. Maybe, if we could standardize the numbers into a single format.
 
-Q2.
-For boolean queries, the effect might be less than phrasal queries since for boolean queries, we will no longer be able to process queries with stopwords or ast least the results would be  ambigious (eg. bill AND gates AND and, bill AND gates OR and) Its not clear how we should consider the last term in the query. All docs? Some docs? Ignore? On the plus side, performance might improve since we now use a lot less space in our postings file (indexing is faster). We don't save all that much space in our dictionary.
+I think one way to support phrasal queries in VSM model is when building postings lists also take note of positional indicies. And for each query asked, perform positional intersection. If the results afterwards is empty, exit with empty results. If not also perform the search using the VSM model and from the ranked results remove those that are not in the results from the positional intersection. The resulting list is the search result.
 
-However, I think for phrasal queries, removal of stop words reduce the ability to match exact phrases.
+### Q2. - Describe how your search engine reacts to long documents and long queries as compared to short documents and queries. Is the normalization you use sufficient to address the problems (see Section 6.4.4 for a hint)? In your judgement, is the ltc.lnc scheme (n.b., not the ranking scheme you were asked to implement) sufficient for retrieving documents from the Reuters-21578 collection?
 
-Q3.
+Longer documents will contain more terms, thus result in higher tf values. Moreover, it is plausible to assume that longer documents in general will contain more different types of terms, and therefore would result in a higher match in a given query. Normalization of each document vector by Euclidean length of the vector, all the information on the length of the original document is eliminated. Because of these factors, longer documents would give a higher score, compared to a shorter document containing the exact same match to the query. Hence,the normalization I use is insufficient to address the problem.
 
-Sentence tokenization seems to be okay. However, for word tokenization, it seems to be just splitting on whitespace. Even though this is fine for this assignment, Some words lose their meaning when broken up by whitespace (eg. 5.5 mil) One thing we could do here is to have a special rule for numbers and the words that come before then and/or after them.
+The `ltc.lnc` scheme is fine, because in the Reuters-21578 collection, since the length of the documents and queries are all relatively short. However, since idf is not being done on queries, when the queries are long and contains rare terms, it won't weigh those terms more heavily than frequently occurring terms. For single token queries and very short queries, it is fine.
+
+
+### Q3. - Do you think zone or field parametric indices would be useful for practical search in the Reuters collection? Note: the Reuters collection does have metadata for each article but the quality of the metadata is not uniform, nor are the metadata classifications uniformly applied (some documents have it, some don't). Hint: for the next Homework #4, we will be using field metadata, so if you want to base Homework #4 on your Homework #3, you're welcomed to start support of this early (although no extra credit will be given if it's right).
+
+
+Yes, despite the non-uniformity of metadata, we can still consider them relevant. If we want to search specifically for a particular piece of metadata. Since all documents contains a title at least, that could be a zone that we could make use of. Plus, the title can be considered as a pretty strong signal of relevance as well. However we probably need to search through a large number of document sto find a relevant document.
