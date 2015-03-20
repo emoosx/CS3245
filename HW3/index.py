@@ -8,11 +8,9 @@ import sys
 import os
 
 
-sys.setrecursionlimit(10000)
 dictionary = {}
 postings = []
 
-UNIVERSAL = 0
 pointer = 0
 stemmer = PorterStemmer()
 
