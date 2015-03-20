@@ -2,8 +2,9 @@ from collections import Counter
 from nltk.stem.porter import PorterStemmer
 from nltk import word_tokenize
 from math import log10, sqrt
-from result_heap import ResultHeap
+from pprint import pprint
 import cPickle as pickle
+import heapq
 
 
 class SearchIndex:
@@ -45,18 +46,20 @@ class SearchIndex:
 
     def compute_cosine_scores(self, query_vector):
         scores = {}
-        denom = {}
         for term, value in query_vector.iteritems():
             postings = self.get_postings(term)
             for p in postings:
-                doc, tf = p[0], p[1]
+                doc, tf, weight_td = p[0], p[1], p[2]
                 # scores[doc] += w(t,d)*w(t,q)
                 if doc in scores:
-                    scores[doc] += value * self.cal_log_tfs(tf)
+                    socres[doc] += weight_td * value
                 else:
-                    scores[doc] = value * self.cal_log_tfs(tf)
+                    scores[doc] = weight_td * value
         return scores
 
+    @staticmethod
+    def to_result_string(heap):
+        return " ".join(x[1] for x in heap)
 
     def search(self, query):
         """ Entry point of search
@@ -68,42 +71,24 @@ class SearchIndex:
         terms = map(lambda x: self.stemmer.stem(x), word_tokenize(query))
         terms = dict(Counter(terms))
         query_vector = self.normalize_vector(terms, self.tfs_idf)
-
         if not any(query_vector):
             return []
 
-        cosine_scores = self.compute_cosine_scores(query_vector)
-        return cosine_scores
 
-        # scores = {}
-        # denom = {}
-        # for term, value in query_vector.iteritems():
-            # postings = self.get_postings(term)
-            # for doc in postings:
-                # if doc[0] in scores:
-                    # scores[doc[0]] += self.cal_tfs(doc[1]) * value
-                    # denom[doc[0]] += self.cal_tfs(doc[1]) ** 2
-                # else:
-                    # scores[doc[0]] = self.cal_tfs(doc[1]) * value
-                    # denom[doc[0]] = self.cal_tfs(doc[1]) ** 2
+        scores = {}
+        for term, value in query_vector.iteritems():
+            postings = self.get_postings(term)
+            for p in postings:
+                doc, tf, weight_td = p[0], p[1], p[2]
+                if doc in scores:
+                    scores[doc] += weight_td * value
+                else:
+                    scores[doc] = weight_td * value
 
-        # for k, v in scores.iteritems():
-            # d = sqrt(denom[k])
-            # if d == 0:
-                # continue
-            # scores[k] = v/sqrt(denom[k])
+        search_results = []
+        for doc in scores:
+            scores[doc] = scores[doc]/len(scores)
+            heapq.heappush(search_results, (-scores[doc], doc)) # heapq is a min-heap
+        top_ten = heapq.nsmallest(10, search_results, key=lambda x: x[1])
 
-        # def comparator(x, y):
-            # if x[0] > y[0]:
-                # return -1
-            # elif x[0] < y[0]:
-                # return 1
-            # else:
-                # return -1
-
-        # h = []
-        # for docId, score in scores.iteritems():
-            # h.append((score, int(docId)))
-        # h.sort(comparator)
-
-        # return map(lambda x: x[1], h[:10])
+        return SearchIndex.to_result_string(top_ten)

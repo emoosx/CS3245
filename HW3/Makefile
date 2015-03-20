@@ -3,16 +3,18 @@ DICT=dictionary.txt
 POSTINGFILE=postings.txt
 
 QUERIES=query.txt
+JIN_QUERIES=jin_query.txt
 OUTPUT=output.txt
 TEMP=temp/
-
-all: clean index search
 
 index: index.py
 	python index.py -i $(DOC) -d $(DICT) -p $(POSTINGFILE)
 
-search: search.py
+search: search.py $(QUERIES)
 	python search.py -d $(DICT) -p $(POSTINGFILE) -q $(QUERIES) -o $(OUTPUT)
+
+search_jin: search.py $(JIN_QUERIES)
+	python search.py -d $(DICT) -p $(POSTINGFILE) -q $(JIN_QUERIES) -o $(OUTPUT)
 
 clean:
 	if [ -d "$(TEMP)" ]; then \
@@ -22,3 +24,5 @@ clean:
 
 test:
 	nosetests
+
+all: clean index search

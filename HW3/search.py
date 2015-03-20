@@ -9,8 +9,8 @@ def main():
         with open(output_file, 'w') as foutput:
             for query in fquery.readlines():
                 result = search.search(query)
-                print result
-                # foutput.write(result + '\n')
+                # print result
+                foutput.write(result + '\n')
 
 
 def usage():

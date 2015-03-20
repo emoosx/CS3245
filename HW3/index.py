@@ -2,6 +2,7 @@ from nltk.stem.porter import PorterStemmer
 from collections import Counter
 from nltk import sent_tokenize, word_tokenize
 # from pprint import pprint
+import utils
 import cPickle as pickle
 import getopt
 import sys
@@ -33,17 +34,20 @@ def index_content(term_freq, docId):
     for word, freq in term_freq.iteritems():
         if word not in dictionary:
             dictionary[word] = pointer
-            postings.insert(pointer, [(docId, freq)])
+            postings.insert(pointer, [[docId, freq]])
             pointer += 1
         else:
-            postings[dictionary[word]].append((docId, freq))
+            postings[dictionary[word]].append([docId, freq])
 
 
 def main():
     """
     This is the point of entry. Does initialization, retrieve files' content,
     do indexing, generation diction and postings_files.
+
+    Make another pass to calculate doc weights (tf * 1)
     """
+
     data = sorted(os.listdir(dir_to_index), key=int)
     for d in data:
         filepath = os.path.join(dir_to_index, d)
@@ -51,6 +55,13 @@ def main():
             content = " ".join(map(lambda x: x.strip(), f.readlines()))
             term_freq = get_each_file_term_frequency(content, d)
             index_content(term_freq, d)
+
+    # make another pass to calculate doc weights
+    for word, pointer in dictionary.iteritems():
+        for doc in postings[pointer]:
+            doc.append(utils.cal_log_tfs(doc[1]))
+
+    # pprint(postings)
     create_files(len(data))
 
 
